@@ -46,29 +46,38 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
     }
     
     .logo { font-size: 20px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
     .logo .icon { font-size: 24px; }
     .logo span { color: var(--accent); }
     
-    .endpoint-badge {
+    .endpoint-box {
       background: var(--bg-card);
       border: 1px solid var(--accent);
       border-radius: 8px;
-      padding: 8px 16px;
-      font-family: monospace;
-      font-size: 14px;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
     
-    .endpoint-badge span { color: var(--success); }
+    .endpoint-url {
+      font-family: monospace;
+      font-size: 14px;
+      color: var(--success);
+    }
+    
+    .endpoint-url.inactive { color: var(--text-secondary); }
     
     .btn {
-      padding: 10px 20px;
-      font-size: 14px;
+      padding: 8px 16px;
+      font-size: 13px;
       font-weight: 600;
       border: none;
-      border-radius: 8px;
+      border-radius: 6px;
       cursor: pointer;
       transition: all 0.2s;
     }
@@ -76,88 +85,61 @@
     .btn-primary { background: var(--accent); color: white; }
     .btn-primary:hover { background: var(--accent-hover); }
     .btn-secondary { background: var(--bg-hover); color: var(--text-primary); border: 1px solid var(--border); }
+    .btn-small { padding: 4px 10px; font-size: 12px; }
     
     .hero {
       text-align: center;
-      padding: 60px 20px;
+      padding: 40px 20px;
       background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
     }
     
     .hero h1 {
-      font-size: 48px;
-      margin-bottom: 16px;
+      font-size: 40px;
+      margin-bottom: 12px;
       background: linear-gradient(135deg, var(--accent), #a855f7);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
     
     .hero p {
-      font-size: 18px;
-      color: var(--text-secondary);
-      max-width: 600px;
-      margin: 0 auto 30px;
-    }
-    
-    .hero-endpoint {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 16px 24px;
-      display: inline-block;
-      margin-bottom: 24px;
-    }
-    
-    .hero-endpoint code {
-      font-family: monospace;
       font-size: 16px;
       color: var(--text-secondary);
-    }
-    
-    .hero-endpoint .copy-btn {
-      margin-left: 16px;
-      padding: 4px 12px;
-      font-size: 12px;
-      background: var(--accent);
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
+      max-width: 500px;
+      margin: 0 auto;
     }
     
     .features {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 20px;
-      margin: 40px 0;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin: 30px 0;
     }
     
     .feature-card {
       background: var(--bg-card);
       border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 24px;
+      border-radius: 10px;
+      padding: 20px;
     }
     
-    .feature-card h3 { font-size: 18px; margin-bottom: 8px; }
-    .feature-card p { color: var(--text-secondary); font-size: 14px; }
+    .feature-card h3 { font-size: 15px; margin-bottom: 6px; }
+    .feature-card p { color: var(--text-secondary); font-size: 13px; }
     
     .dashboard {
       display: grid;
-      grid-template-columns: 350px 1fr;
+      grid-template-columns: 320px 1fr;
       gap: 20px;
-      margin: 40px 0;
+      margin: 30px 0;
     }
     
-    .webhook-list {
+    .panel {
       background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 16px;
-      max-height: 600px;
-      overflow-y: auto;
     }
     
-    .webhook-list-header {
+    .panel-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -166,14 +148,19 @@
       border-bottom: 1px solid var(--border);
     }
     
-    .webhook-list-header h3 { font-size: 16px; }
+    .panel-header h3 { font-size: 15px; }
     
     .webhook-count {
       background: var(--accent);
       color: white;
       padding: 2px 10px;
       border-radius: 12px;
-      font-size: 12px;
+      font-size: 11px;
+    }
+    
+    .webhook-list {
+      max-height: 500px;
+      overflow-y: auto;
     }
     
     .webhook-item {
@@ -197,7 +184,7 @@
     }
     
     .webhook-method {
-      font-size: 11px;
+      font-size: 10px;
       font-weight: bold;
       padding: 2px 6px;
       border-radius: 4px;
@@ -211,55 +198,17 @@
     .method-patch { background: #8b5cf6; color: white; }
     
     .webhook-time { font-size: 11px; color: var(--text-secondary); }
-    
-    .webhook-path {
-      font-family: monospace;
-      font-size: 13px;
-      color: var(--text-secondary);
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    
-    .webhook-detail {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 24px;
-    }
-    
-    .detail-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 24px;
-      padding-bottom: 16px;
-      border-bottom: 1px solid var(--border);
-    }
-    
-    .detail-title {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    
-    .detail-title h3 {
-      font-family: monospace;
-      font-size: 16px;
-      font-weight: normal;
-    }
-    
-    .detail-actions { display: flex; gap: 8px; }
+    .webhook-path { font-family: monospace; font-size: 12px; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     
     .tabs {
       display: flex;
-      gap: 8px;
-      margin-bottom: 20px;
+      gap: 6px;
+      margin-bottom: 16px;
     }
     
     .tab {
-      padding: 8px 16px;
-      font-size: 13px;
+      padding: 6px 14px;
+      font-size: 12px;
       border: 1px solid var(--border);
       border-radius: 6px;
       background: transparent;
@@ -272,51 +221,88 @@
     .tab-content { display: none; }
     .tab-content.active { display: block; }
     
-    .data-section {
-      margin-bottom: 20px;
-    }
-    
-    .data-section h4 {
-      font-size: 13px;
-      color: var(--text-secondary);
-      margin-bottom: 8px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    
     .data-box {
       background: var(--bg-secondary);
       border: 1px solid var(--border);
       border-radius: 8px;
-      padding: 16px;
+      padding: 14px;
       font-family: monospace;
-      font-size: 13px;
+      font-size: 12px;
       white-space: pre-wrap;
       word-break: break-all;
-      max-height: 300px;
+      max-height: 280px;
       overflow-y: auto;
     }
     
     .empty-state {
       text-align: center;
-      padding: 60px 20px;
+      padding: 40px 20px;
       color: var(--text-secondary);
     }
     
-    .empty-state .icon { font-size: 48px; margin-bottom: 16px; }
+    .empty-state .icon { font-size: 40px; margin-bottom: 12px; }
+    
+    .detail-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+    }
+    
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+    }
+    
+    .status.disconnected .status-dot { background: var(--error); }
+    
+    .api-test {
+      margin-top: 20px;
+      padding: 16px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+    
+    .api-test h4 { font-size: 13px; margin-bottom: 12px; }
+    
+    .api-test-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    
+    .api-test-row input {
+      flex: 1;
+      padding: 8px 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-primary);
+      font-family: monospace;
+      font-size: 12px;
+    }
     
     footer {
       text-align: center;
-      padding: 40px;
+      padding: 30px;
       color: var(--text-secondary);
-      font-size: 14px;
+      font-size: 13px;
       border-top: 1px solid var(--border);
-      margin-top: 60px;
+      margin-top: 40px;
     }
     
-    @media (max-width: 900px) {
+    @media (max-width: 800px) {
       .dashboard { grid-template-columns: 1fr; }
-      .hero h1 { font-size: 32px; }
+      .hero h1 { font-size: 28px; }
     }
   </style>
 </head>
@@ -327,99 +313,97 @@
         <span class="icon">🪝</span>
         <span>Open</span><span>Hook</span>
       </div>
-      <div class="endpoint-badge">
-        <code id="webhookUrl">https://openhook.dev/hook/abc123</code>
-        <button class="copy-btn" onclick="copyWebhookUrl()">Copy</button>
+      <div class="status" id="connectionStatus">
+        <span class="status-dot"></span>
+        <span id="statusText">Connecting...</span>
+      </div>
+      <div class="endpoint-box">
+        <span class="endpoint-url" id="webhookUrl">Loading...</span>
+        <button class="btn btn-secondary btn-small" onclick="copyEndpoint()">📋 Copy</button>
       </div>
     </div>
   </header>
   
   <section class="hero">
     <h1>Webhook Debugging Made Simple</h1>
-    <p>Inspect, replay, and debug webhooks in real-time. Perfect for developers building with Stripe, GitHub, Slack, and more.</p>
-    
-    <div class="hero-endpoint">
-      <code id="heroUrl">curl -X POST https://openhook.dev/hook/abc123 -d '{"event":"test"}'</code>
-      <button class="copy-btn" onclick="copyHeroUrl()">Copy</button>
-    </div>
-    
-    <div class="features">
-      <div class="feature-card">
-        <h3>🪝 Real-time Capture</h3>
-        <p>Instantly capture and inspect incoming webhooks with full headers, body, and query params.</p>
-      </div>
-      <div class="feature-card">
-        <h3>🔄 Replay Requests</h3>
-        <p>Replay any webhook to test your integration without triggering the original source.</p>
-      </div>
-      <div class="feature-card">
-        <h3>📊 Inspect Everything</h3>
-        <p>View headers, JSON body, form data, query parameters in a clean, formatted view.</p>
-      </div>
-      <div class="feature-card">
-        <h3>⏰ Request History</h3>
-        <p>Keep a history of all webhook calls with timestamps for easy debugging later.</p>
-      </div>
-    </div>
+    <p>Inspect, replay, and debug webhooks in real-time. Works with Stripe, GitHub, Slack, and more.</p>
   </section>
   
   <section class="container">
+    <div class="features">
+      <div class="feature-card">
+        <h3>🪝 Real-time Capture</h3>
+        <p>Instantly capture incoming webhooks with full details.</p>
+      </div>
+      <div class="feature-card">
+        <h3>🔄 Replay Requests</h3>
+        <p>Test your integration without triggering the source.</p>
+      </div>
+      <div class="feature-card">
+        <h3>📊 Inspect Everything</h3>
+        <p>View headers, body, query params in formatted view.</p>
+      </div>
+      <div class="feature-card">
+        <h3>⏰ Request History</h3>
+        <p>Keep history of all webhook calls for debugging.</p>
+      </div>
+    </div>
+    
     <div class="dashboard">
-      <div class="webhook-list">
-        <div class="webhook-list-header">
+      <div class="panel">
+        <div class="panel-header">
           <h3>Recent Requests</h3>
           <span class="webhook-count" id="requestCount">0</span>
         </div>
         <div id="webhookList">
           <div class="empty-state">
             <div class="icon">📭</div>
-            <p>No webhooks yet.<br>Send a POST request to get started!</p>
+            <p>No webhooks yet</p>
           </div>
+        </div>
+        
+        <div class="api-test">
+          <h4>🧪 Test Your Endpoint</h4>
+          <div class="api-test-row">
+            <input type="text" id="testPayload" value='{"event":"test","data":"hello"}' placeholder="JSON payload">
+          </div>
+          <button class="btn btn-primary" onclick="sendTestWebhook()" style="width: 100%;">Send Test Webhook</button>
         </div>
       </div>
       
-      <div class="webhook-detail">
-        <div class="empty-state" id="emptyDetail">
-          <div class="icon">👆</div>
-          <p>Select a webhook to inspect</p>
+      <div class="panel">
+        <div id="emptyDetail">
+          <div class="empty-state">
+            <div class="icon">👆</div>
+            <p>Select a webhook to inspect</p>
+          </div>
         </div>
+        
         <div id="webhookDetail" style="display: none;">
-          <div class="detail-header">
+          <div class="panel-header">
             <div class="detail-title">
-              <span class="webhook-method method-post" id="detailMethod">POST</span>
-              <h3 id="detailPath">/hook/abc123</h3>
+              <span class="webhook-method" id="detailMethod">POST</span>
+              <span id="detailPath" style="font-family: monospace; font-size: 14px;"></span>
             </div>
             <div class="detail-actions">
-              <button class="btn btn-primary" onclick="replayRequest()">🔄 Replay</button>
-              <button class="btn btn-secondary" onclick="copyAsCurl()">📋 Copy as cURL</button>
+              <button class="btn btn-secondary btn-small" onclick="copyAsCurl()">📋 Copy</button>
             </div>
           </div>
           
           <div class="tabs">
             <button class="tab active" data-tab="body">Body</button>
             <button class="tab" data-tab="headers">Headers</button>
-            <button class="tab" data-tab="query">Query Params</button>
+            <button class="tab" data-tab="query">Query</button>
           </div>
           
           <div class="tab-content active" id="tab-body">
-            <div class="data-section">
-              <h4>Request Body</h4>
-              <div class="data-box" id="detailBody">{}</div>
-            </div>
+            <div class="data-box" id="detailBody">{}</div>
           </div>
-          
           <div class="tab-content" id="tab-headers">
-            <div class="data-section">
-              <h4>Headers</h4>
-              <div class="data-box" id="detailHeaders">{}</div>
-            </div>
+            <div class="data-box" id="detailHeaders">{}</div>
           </div>
-          
           <div class="tab-content" id="tab-query">
-            <div class="data-section">
-              <h4>Query Parameters</h4>
-              <div class="data-box" id="detailQuery">{}</div>
-            </div>
+            <div class="data-box" id="detailQuery">{}</div>
           </div>
         </div>
       </div>
@@ -427,85 +411,84 @@
   </section>
   
   <footer>
-    <p>🪝 OpenHook - Open source webhook debugging tool | Built for developers</p>
+    <p>🪝 OpenHook - Open source webhook debugging | <a href="https://github.com/devpenclaw/openhook" style="color: var(--accent);">View on GitHub</a></p>
   </footer>
   
   <script>
-    // Demo webhooks for showcase
-    const demoWebhooks = [
-      {
-        id: '1',
-        method: 'POST',
-        path: '/hook/stripe_payment',
-        time: new Date(Date.now() - 60000),
-        headers: {
-          'content-type': 'application/json',
-          'user-agent': 'Stripe/1.0',
-          'x-forwarded-for': '127.0.0.1'
-        },
-        body: {
-          event: 'payment_intent.succeeded',
-          data: {
-            amount: 9900,
-            currency: 'usd',
-            customer: 'cus_123abc'
-          }
-        },
-        query: {}
-      },
-      {
-        id: '2',
-        method: 'POST',
-        path: '/hook/github_push',
-        time: new Date(Date.now() - 180000),
-        headers: {
-          'content-type': 'application/json',
-          'x-github-event': 'push',
-          'x-github-delivery': 'abc123'
-        },
-        body: {
-          ref: 'refs/heads/main',
-          commits: [{ message: 'Fix: resolve bug in auth' }],
-          repository: { name: 'my-project' }
-        },
-        query: {}
-      },
-      {
-        id: '3',
-        method: 'GET',
-        path: '/hook/health_check',
-        time: new Date(Date.now() - 300000),
-        headers: {
-          'user-agent': 'Pingdom/1.0'
-        },
-        body: {},
-        query: { service: 'api', status: 'ok' }
-      }
-    ];
-    
-    let webhooks = [...demoWebhooks];
+    let currentEndpoint = null;
+    let webhooks = [];
     let selectedId = null;
+    const API_BASE = window.location.origin;
     
-    // Generate random endpoint
-    const endpointId = 'hook_' + Math.random().toString(36).substring(2, 10);
-    document.getElementById('webhookUrl').textContent = `https://openhook.dev/${endpointId}`;
-    document.getElementById('heroUrl').textContent = `curl -X POST https://openhook.dev/${endpointId} -d '{"event":"test"}'`;
-    
-    function copyWebhookUrl() {
-      navigator.clipboard.writeText(document.getElementById('webhookUrl').textContent);
-      alert('Copied!');
+    // Get or create endpoint
+    async function init() {
+      try {
+        const res = await fetch(`${API_BASE}/api/endpoints`);
+        const endpoints = await res.json();
+        
+        if (endpoints.length > 0) {
+          currentEndpoint = endpoints[0].endpoint;
+        } else {
+          const newRes = await fetch(`${API_BASE}/api/endpoints`, { method: "POST" });
+          const newData = await newRes.json();
+          currentEndpoint = newData.endpoint;
+        }
+        
+        document.getElementById("webhookUrl").textContent = `${API_BASE}/api/hook/${currentEndpoint}`;
+        document.getElementById("statusText").textContent = "Live";
+        document.getElementById("connectionStatus").classList.remove("disconnected");
+        
+        loadWebhooks();
+        setInterval(loadWebhooks, 2000);
+      } catch (e) {
+        document.getElementById("statusText").textContent = "Offline (demo mode)";
+        document.getElementById("connectionStatus").classList.add("disconnected");
+        loadDemoMode();
+      }
     }
     
-    function copyHeroUrl() {
-      navigator.clipboard.writeText(document.getElementById('heroUrl').textContent);
-      alert('Copied!');
+    function loadDemoMode() {
+      webhooks = [
+        {
+          id: "demo1",
+          method: "POST",
+          path: "/api/hook/demo123",
+          headers: { "content-type": "application/json", "user-agent": "Stripe/1.0" },
+          body: { event: "payment_intent.succeeded", amount: 9900 },
+          query: {},
+          time: Date.now() - 60000
+        },
+        {
+          id: "demo2",
+          method: "POST",
+          path: "/api/hook/demo123",
+          headers: { "content-type": "application/json", "x-github-event": "push" },
+          body: { ref: "refs/heads/main", commits: [{ message: "Update" }] },
+          query: {},
+          time: Date.now() - 180000
+        }
+      ];
+      document.getElementById("webhookUrl").textContent = `${API_BASE}/api/hook/demo123 (demo)`;
+      document.getElementById("webhookUrl").classList.add("inactive");
+      renderWebhookList();
     }
     
-    function formatTime(date) {
-      const diff = Date.now() - date.getTime();
-      if (diff < 60000) return 'Just now';
-      if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
-      return Math.floor(diff / 3600000) + 'h ago';
+    async function loadWebhooks() {
+      if (!currentEndpoint) return;
+      try {
+        const res = await fetch(`${API_BASE}/api/hooks/${currentEndpoint}`);
+        webhooks = await res.json();
+        renderWebhookList();
+      } catch (e) {
+        // Silent fail - demo mode handles this
+      }
+    }
+    
+    function formatTime(ts) {
+      const diff = Date.now() - ts;
+      if (diff < 60000) return "Just now";
+      if (diff < 3600000) return Math.floor(diff / 60000) + "m ago";
+      return Math.floor(diff / 3600000) + "h ago";
     }
     
     function formatJSON(obj) {
@@ -513,28 +496,28 @@
     }
     
     function renderWebhookList() {
-      const list = document.getElementById('webhookList');
-      document.getElementById('requestCount').textContent = webhooks.length;
+      const list = document.getElementById("webhookList");
+      document.getElementById("requestCount").textContent = webhooks.length;
       
       if (webhooks.length === 0) {
         list.innerHTML = `
           <div class="empty-state">
             <div class="icon">📭</div>
-            <p>No webhooks yet.<br>Send a POST request to get started!</p>
+            <p>No webhooks yet.<br>Send a request to get started!</p>
           </div>
         `;
         return;
       }
       
       list.innerHTML = webhooks.map(w => `
-        <div class="webhook-item ${w.id === selectedId ? 'selected' : ''}" onclick="selectWebhook('${w.id}')">
+        <div class="webhook-item ${w.id === selectedId ? "selected" : ""}" onclick="selectWebhook('${w.id}')">
           <div class="webhook-item-header">
             <span class="webhook-method method-${w.method.toLowerCase()}">${w.method}</span>
             <span class="webhook-time">${formatTime(w.time)}</span>
           </div>
           <div class="webhook-path">${w.path}</div>
         </div>
-      `).join('');
+      `).join("");
     }
     
     function selectWebhook(id) {
@@ -544,48 +527,83 @@
       const webhook = webhooks.find(w => w.id === id);
       if (!webhook) return;
       
-      document.getElementById('emptyDetail').style.display = 'none';
-      document.getElementById('webhookDetail').style.display = 'block';
+      document.getElementById("emptyDetail").style.display = "none";
+      document.getElementById("webhookDetail").style.display = "block";
       
-      document.getElementById('detailMethod').textContent = webhook.method;
-      document.getElementById('detailMethod').className = `webhook-method method-${webhook.method.toLowerCase()}`;
-      document.getElementById('detailPath').textContent = webhook.path;
-      document.getElementById('detailBody').textContent = formatJSON(webhook.body);
-      document.getElementById('detailHeaders').textContent = formatJSON(webhook.headers);
-      document.getElementById('detailQuery').textContent = formatJSON(webhook.query);
+      document.getElementById("detailMethod").textContent = webhook.method;
+      document.getElementById("detailMethod").className = `webhook-method method-${webhook.method.toLowerCase()}`;
+      document.getElementById("detailPath").textContent = webhook.path;
+      document.getElementById("detailBody").textContent = formatJSON(webhook.body || {});
+      document.getElementById("detailHeaders").textContent = formatJSON(webhook.headers || {});
+      document.getElementById("detailQuery").textContent = formatJSON(webhook.query || {});
     }
     
-    function replayRequest() {
-      if (!selectedId) return;
-      const webhook = webhooks.find(w => w.id === selectedId);
-      alert(`Replay feature coming soon!\n\nWould replay ${webhook.method} ${webhook.path}`);
+    async function sendTestWebhook() {
+      const payload = document.getElementById("testPayload").value;
+      let body;
+      try {
+        body = JSON.parse(payload);
+      } catch (e) {
+        body = { raw: payload };
+      }
+      
+      const endpoint = currentEndpoint || "demo123";
+      
+      try {
+        const res = await fetch(`${API_BASE}/api/hook/${endpoint}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body)
+        });
+        
+        if (res.ok) {
+          alert("✅ Webhook sent! Check the list.");
+          loadWebhooks();
+        } else {
+          alert("❌ Failed to send webhook");
+        }
+      } catch (e) {
+        // Demo mode - add to local list
+        webhooks.unshift({
+          id: "local_" + Date.now(),
+          method: "POST",
+          path: `/api/hook/${endpoint}`,
+          headers: { "content-type": "application/json" },
+          body,
+          query: {},
+          time: Date.now()
+        });
+        renderWebhookList();
+        alert("✅ Webhook sent! (demo mode)");
+      }
+    }
+    
+    function copyEndpoint() {
+      navigator.clipboard.writeText(document.getElementById("webhookUrl").textContent);
+      alert("Endpoint copied!");
     }
     
     function copyAsCurl() {
       if (!selectedId) return;
       const webhook = webhooks.find(w => w.id === selectedId);
-      const headers = Object.entries(webhook.headers).map(([k, v]) => `-H "${k}: ${v}"`).join(' ');
-      const body = Object.keys(webhook.body).length ? `-d '${formatJSON(webhook.body)}'` : '';
-      const curl = `curl -X ${webhook.method} ${webhook.path} ${headers} ${body}`.trim().replace(/\s+/g, ' ');
+      const headers = Object.entries(webhook.headers || {}).map(([k, v]) => `-H "${k}: ${v}"`).join(" ");
+      const bodyStr = Object.keys(webhook.body || {}).length ? `-d '${formatJSON(webhook.body)}'` : "";
+      const curl = `curl -X ${webhook.method} ${webhook.path} ${headers} ${bodyStr}`.trim().replace(/\s+/g, " ");
       navigator.clipboard.writeText(curl);
-      alert('Copied as cURL!');
+      alert("Copied as cURL!");
     }
     
     // Tab switching
-    document.querySelectorAll('.tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        tab.classList.add('active');
-        document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+    document.querySelectorAll(".tab").forEach(tab => {
+      tab.addEventListener("click", () => {
+        document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+        document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+        tab.classList.add("active");
+        document.getElementById("tab-" + tab.dataset.tab).classList.add("active");
       });
     });
     
-    // Initial render
-    renderWebhookList();
-    if (webhooks.length > 0) {
-      selectWebhook(webhooks[0].id);
-    }
+    init();
   </script>
 </body>
 </html>
