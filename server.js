@@ -11,8 +11,8 @@ app.use(express.json({ limit: "1mb" }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// JWT Secret
-const JWT_SECRET = process.env.JWT_SECRET || "openhook-secret-key-change-in-production";
+// JWT Secret - generate one if not set
+const JWT_SECRET = process.env.JWT_SECRET || crypto.randomBytes(32).toString("hex");
 
 // pg pool
 const globalForPool = globalThis || {};
