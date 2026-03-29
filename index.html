@@ -442,6 +442,8 @@
         <button class="secondary small" onclick="refreshEndpoint()">🔄 Refresh</button>
         <button class="secondary small" onclick="createNewEndpoint()">➕ New</button>
         <button class="secondary small" onclick="openExport()">📥 Export</button>
+        <button class="secondary small" onclick="openSettings()">⚙️ Settings</button>
+        <button class="secondary small" onclick="openReset()">🔑 Reset Password</button>
       </div>
     </div>
     
@@ -484,6 +486,9 @@
         <span id="authSwitch">Don't have an account? </span>
         <a onclick="toggleAuthMode()" id="authToggle">Register</a>
       </div>
+      <div style="text-align:center; margin-top:10px;">
+        <a onclick="openReset(); closeAuth();" style="color:var(--text2); font-size:12px; cursor:pointer;">Forgot password?</a>
+      </div>
     </div>
   </div>
   
@@ -509,8 +514,8 @@
         <div class="form-group">
           <label>SSL Verification</label>
           <select id="replaySsl">
-            <option value="true">Enabled</option>
-            <option value="false">Disabled</option>
+            <option value="true">Enabled (Verify SSL)</option>
+            <option value="false">Disabled (Skip SSL Verify)</option>
           </select>
         </div>
       </div>
@@ -525,6 +530,71 @@
       <div class="form-actions">
         <button class="secondary" onclick="closeReplay()">Close</button>
         <button onclick="sendReplay()">Send</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Endpoint Settings Modal -->
+  <div class="modal" id="settingsModal">
+    <div class="modal-box">
+      <h2>⚙️ Endpoint Settings</h2>
+      <div class="form-group">
+        <label>Endpoint Name</label>
+        <input type="text" id="settingsName" placeholder="My Webhook">
+      </div>
+      <div class="form-group">
+        <label>Retention (max webhooks to keep)</label>
+        <select id="settingsRetention">
+          <option value="10">10 webhooks</option>
+          <option value="50">50 webhooks</option>
+          <option value="100" selected>100 webhooks</option>
+          <option value="250">250 webhooks</option>
+          <option value="500">500 webhooks</option>
+          <option value="1000">1000 webhooks</option>
+        </select>
+      </div>
+      <div class="form-actions">
+        <button class="secondary" onclick="closeSettings()">Cancel</button>
+        <button onclick="saveSettings()">Save</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Reset Password Modal -->
+  <div class="modal" id="resetModal">
+    <div class="modal-box">
+      <h2>🔑 Reset Password</h2>
+      <p style="color: var(--text2); margin-bottom: 20px; font-size: 14px;">
+        Enter your email to receive a password reset link.
+      </p>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="resetEmail" placeholder="your@email.com">
+      </div>
+      <div id="resetResult" style="display:none; margin: 15px 0; padding: 10px; border-radius: 8px;"></div>
+      <div class="form-actions">
+        <button class="secondary" onclick="closeReset()">Cancel</button>
+        <button onclick="sendReset()">Send Reset Link</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Reset Password Form Modal -->
+  <div class="modal" id="resetFormModal">
+    <div class="modal-box">
+      <h2>🔑 Set New Password</h2>
+      <div class="form-group">
+        <label>New Password</label>
+        <input type="password" id="newPassword" placeholder="At least 6 characters" minlength="6">
+      </div>
+      <div class="form-group">
+        <label>Confirm Password</label>
+        <input type="password" id="confirmPassword" placeholder="Repeat password" minlength="6">
+      </div>
+      <div id="resetFormResult" style="display:none; margin: 15px 0;"></div>
+      <div class="form-actions">
+        <button class="secondary" onclick="closeResetForm()">Cancel</button>
+        <button onclick="submitNewPassword()">Set Password</button>
       </div>
     </div>
   </div>
@@ -555,6 +625,15 @@
     
     // Init
     document.addEventListener('DOMContentLoaded', () => {
+      // Check for reset token in URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const resetToken = urlParams.get('token');
+      if (resetToken) {
+        openResetForm(resetToken);
+        // Clean URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+      
       checkAuth();
       loadWebhooks();
       setInterval(loadWebhooks, 5000);
@@ -866,7 +945,12 @@
         connectSSE();
         loadWebhooks();
         closeAuth();
-        showToast(authMode === 'login' ? 'Logged in!' : 'Registered!', 'success');
+        
+        if (data.user.needsVerification) {
+          showToast('Account created! Check your email to verify.', 'success');
+        } else {
+          showToast(authMode === 'login' ? 'Logged in!' : 'Registered!', 'success');
+        }
       } catch (e) {
         errorEl.textContent = 'Auth failed: ' + e.message;
       }
@@ -883,6 +967,132 @@
       loadPublicEndpoint();
       loadWebhooks();
       showToast('Logged out', 'success');
+    }
+    
+    // Password Reset
+    function openReset() {
+      closeAuth();
+      document.getElementById('resetModal').classList.add('open');
+    }
+    
+    function closeReset() {
+      document.getElementById('resetModal').classList.remove('open');
+      document.getElementById('resetEmail').value = '';
+      document.getElementById('resetResult').style.display = 'none';
+    }
+    
+    async function sendReset() {
+      const email = document.getElementById('resetEmail').value;
+      if (!email) return;
+      
+      try {
+        const res = await fetch('/api/auth/forgot-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        
+        const data = await res.json();
+        
+        const resultEl = document.getElementById('resetResult');
+        resultEl.style.display = 'block';
+        resultEl.style.background = 'var(--bg3)';
+        resultEl.style.color = 'var(--success)';
+        resultEl.textContent = data.message || 'Check your email for a reset link.';
+        
+        setTimeout(closeReset, 3000);
+      } catch (e) {
+        showToast('Failed to send reset email', 'error');
+      }
+    }
+    
+    function openResetForm(token) {
+      localStorage.setItem('resetToken', token);
+      document.getElementById('resetFormModal').classList.add('open');
+    }
+    
+    function closeResetForm() {
+      document.getElementById('resetFormModal').classList.remove('open');
+      localStorage.removeItem('resetToken');
+    }
+    
+    async function submitNewPassword() {
+      const password = document.getElementById('newPassword').value;
+      const confirm = document.getElementById('confirmPassword').value;
+      const token = localStorage.getItem('resetToken');
+      const resultEl = document.getElementById('resetFormResult');
+      
+      if (password !== confirm) {
+        resultEl.style.display = 'block';
+        resultEl.style.color = 'var(--error)';
+        resultEl.textContent = 'Passwords do not match';
+        return;
+      }
+      
+      if (password.length < 6) {
+        resultEl.style.display = 'block';
+        resultEl.style.color = 'var(--error)';
+        resultEl.textContent = 'Password must be at least 6 characters';
+        return;
+      }
+      
+      try {
+        const res = await fetch('/api/auth/reset-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token, password })
+        });
+        
+        const data = await res.json();
+        
+        if (!res.ok) {
+          resultEl.style.display = 'block';
+          resultEl.style.color = 'var(--error)';
+          resultEl.textContent = data.error || 'Reset failed';
+          return;
+        }
+        
+        showToast('Password reset successful!', 'success');
+        closeResetForm();
+        openAuth();
+      } catch (e) {
+        showToast('Reset failed', 'error');
+      }
+    }
+    
+    // Endpoint Settings
+    function openSettings() {
+      document.getElementById('settingsModal').classList.add('open');
+    }
+    
+    function closeSettings() {
+      document.getElementById('settingsModal').classList.remove('open');
+    }
+    
+    async function saveSettings() {
+      const name = document.getElementById('settingsName').value;
+      const retention = document.getElementById('settingsRetention').value;
+      
+      try {
+        const res = await fetch(`/api/endpoints/${currentEndpoint}`, {
+          method: 'PATCH',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify({ name, retention })
+        });
+        
+        if (res.ok) {
+          showToast('Settings saved!', 'success');
+          closeSettings();
+          loadWebhooks();
+        } else {
+          showToast('Failed to save settings', 'error');
+        }
+      } catch (e) {
+        showToast('Failed to save settings', 'error');
+      }
     }
     
     // Utilities
