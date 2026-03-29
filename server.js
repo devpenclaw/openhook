@@ -8,9 +8,14 @@ app.use(express.json({ limit: "1mb" }));
 app.use(express.urlencoded({ extended: true }));
 
 // pg pool (like careflow)
+const connectionString = process.env.DATABASE_URL;
+console.log("DATABASE_URL set:", !!connectionString);
+console.log("DATABASE_URL preview:", connectionString ? connectionString.substring(0, 50) + "..." : "NOT SET");
+
 const pool = new Pool({ 
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }
+  connectionString: connectionString,
+  ssl: { rejectUnauthorized: false },
+  connectionTimeoutMillis: 5000
 });
 
 // In-memory fallback
@@ -64,6 +69,7 @@ app.post("/api/hook/:endpoint", async (req, res) => {
     
     // Try to save to DB
     try {
+      console.log("Trying DB for:", endpoint);
       let result = await pool.query("SELECT id FROM endpoints WHERE endpoint = $1", [endpoint]);
       let endpointId;
       
@@ -80,9 +86,10 @@ app.post("/api/hook/:endpoint", async (req, res) => {
         [endpointId, webhookId, req.method, "/api/hook/" + endpoint, JSON.stringify(req.headers), JSON.stringify(req.body), JSON.stringify(req.query), Date.now()]
       );
       
+      console.log("DB success for:", endpoint);
       return res.json({ success: true, id: webhookId, mode: "db" });
     } catch (dbError) {
-      console.log("DB fallback:", dbError.message);
+      console.log("DB fallback reason:", dbError.message);
     }
     
     // In-memory fallback
