@@ -8,8 +8,7 @@ app.use(express.json({ limit: "1mb" }));
 app.use(express.urlencoded({ extended: true }));
 
 // Neon connection
-const DATABASE_URL = "postgresql://neondb_owner:npg_ibD3tZpL8nNo@ep-long-union-abxnub5o-pooler.eu-west-2.aws.neon.tech/neondb?sslmode=require";
-const sql = postgres(DATABASE_URL, {
+const sql = postgres("postgres://neondb_owner:npg_ibD3tZpL8nNo@ep-long-union-abxnub5o-pooler.eu-west-2.aws.neon.tech/neondb", {
   ssl: { rejectUnauthorized: false },
   max: 1
 });
