@@ -7,16 +7,30 @@ const app = express();
 app.use(express.json({ limit: "1mb" }));
 app.use(express.urlencoded({ extended: true }));
 
-// pg pool (like careflow)
-const connectionString = process.env.DATABASE_URL;
-console.log("DATABASE_URL set:", !!connectionString);
-console.log("DATABASE_URL preview:", connectionString ? connectionString.substring(0, 50) + "..." : "NOT SET");
+// pg pool - reuse across invocations (like careflow)
+const globalForPool = globalThis as unknown as { pool: Pool | undefined };
 
-const pool = new Pool({ 
-  connectionString: connectionString,
-  ssl: { rejectUnauthorized: false },
-  connectionTimeoutMillis: 5000
-});
+function createPool() {
+  const connectionString = process.env.DATABASE_URL;
+  console.log("Pool created, DATABASE_URL:", connectionString ? "SET" : "NOT SET");
+  
+  if (!connectionString) {
+    return null;
+  }
+  
+  return new Pool({ 
+    connectionString,
+    ssl: { rejectUnauthorized: false },
+    connectionTimeoutMillis: 5000,
+    idleTimeoutMillis: 10000,
+    max: 1
+  });
+}
+
+const pool = globalForPool.pool ?? createPool();
+if (process.env.NODE_ENV !== "production") {
+  globalForPool.pool = pool;
+}
 
 // In-memory fallback
 const endpoints = new Map();
@@ -34,6 +48,10 @@ webhooks.set(demoEndpoint, []);
 
 // Init DB tables
 async function initDB() {
+  if (!pool) {
+    console.log("No pool, skipping DB init");
+    return;
+  }
   try {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS endpoints (
@@ -68,28 +86,28 @@ app.post("/api/hook/:endpoint", async (req, res) => {
     const endpoint = req.params.endpoint;
     
     // Try to save to DB
-    try {
-      console.log("Trying DB for:", endpoint);
-      let result = await pool.query("SELECT id FROM endpoints WHERE endpoint = $1", [endpoint]);
-      let endpointId;
-      
-      if (result.rows.length === 0) {
-        const newResult = await pool.query("INSERT INTO endpoints (endpoint) VALUES ($1) RETURNING id", [endpoint]);
-        endpointId = newResult.rows[0].id;
-      } else {
-        endpointId = result.rows[0].id;
+    if (pool) {
+      try {
+        let result = await pool.query("SELECT id FROM endpoints WHERE endpoint = $1", [endpoint]);
+        let endpointId;
+        
+        if (result.rows.length === 0) {
+          const newResult = await pool.query("INSERT INTO endpoints (endpoint) VALUES ($1) RETURNING id", [endpoint]);
+          endpointId = newResult.rows[0].id;
+        } else {
+          endpointId = result.rows[0].id;
+        }
+        
+        const webhookId = crypto.randomBytes(4).toString("hex");
+        await pool.query(
+          "INSERT INTO webhooks (endpoint_id, webhook_id, method, path, headers, body, query, time) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
+          [endpointId, webhookId, req.method, "/api/hook/" + endpoint, JSON.stringify(req.headers), JSON.stringify(req.body), JSON.stringify(req.query), Date.now()]
+        );
+        
+        return res.json({ success: true, id: webhookId, mode: "db" });
+      } catch (dbError) {
+        console.log("DB error:", dbError.message);
       }
-      
-      const webhookId = crypto.randomBytes(4).toString("hex");
-      await pool.query(
-        "INSERT INTO webhooks (endpoint_id, webhook_id, method, path, headers, body, query, time) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
-        [endpointId, webhookId, req.method, "/api/hook/" + endpoint, JSON.stringify(req.headers), JSON.stringify(req.body), JSON.stringify(req.query), Date.now()]
-      );
-      
-      console.log("DB success for:", endpoint);
-      return res.json({ success: true, id: webhookId, mode: "db" });
-    } catch (dbError) {
-      console.log("DB fallback reason:", dbError.message);
     }
     
     // In-memory fallback
@@ -124,16 +142,19 @@ app.post("/api/hook/:endpoint", async (req, res) => {
 app.get("/api/hooks/:endpoint", async (req, res) => {
   try {
     const endpoint = req.params.endpoint;
-    try {
-      const result = await pool.query(
-        "SELECT w.webhook_id as id, w.method, w.path, w.headers, w.body, w.query, w.time FROM webhooks w JOIN endpoints e ON w.endpoint_id = e.id WHERE e.endpoint = $1 ORDER BY w.time DESC LIMIT 50",
-        [endpoint]
-      );
-      if (result.rows.length > 0) {
-        return res.json(result.rows);
+    
+    if (pool) {
+      try {
+        const result = await pool.query(
+          "SELECT w.webhook_id as id, w.method, w.path, w.headers, w.body, w.query, w.time FROM webhooks w JOIN endpoints e ON w.endpoint_id = e.id WHERE e.endpoint = $1 ORDER BY w.time DESC LIMIT 50",
+          [endpoint]
+        );
+        if (result.rows.length > 0) {
+          return res.json(result.rows);
+        }
+      } catch (dbError) {
+        console.log("DB get error:", dbError.message);
       }
-    } catch (dbError) {
-      // Fallback
     }
     
     res.json(webhooks.get(endpoint) || []);
@@ -154,11 +175,17 @@ app.post("/api/endpoints", (req, res) => {
 // Get all endpoints
 app.get("/api/endpoints", async (req, res) => {
   try {
-    const result = await pool.query(
-      "SELECT e.endpoint, e.created_at, COUNT(w.id) as count FROM endpoints e LEFT JOIN webhooks w ON w.endpoint_id = e.id GROUP BY e.id, e.endpoint, e.created_at ORDER BY e.created_at DESC LIMIT 10"
-    );
-    if (result.rows.length > 0) {
-      return res.json(result.rows);
+    if (pool) {
+      try {
+        const result = await pool.query(
+          "SELECT e.endpoint, e.created_at, COUNT(w.id) as count FROM endpoints e LEFT JOIN webhooks w ON w.endpoint_id = e.id GROUP BY e.id, e.endpoint, e.created_at ORDER BY e.created_at DESC LIMIT 10"
+        );
+        if (result.rows.length > 0) {
+          return res.json(result.rows);
+        }
+      } catch (dbError) {
+        console.log("DB list error:", dbError.message);
+      }
     }
   } catch (e) {
     // Fallback
@@ -177,7 +204,7 @@ app.get("/api/endpoints", async (req, res) => {
 
 // Health check
 app.get("/api/health", (req, res) => {
-  res.json({ status: "ok" });
+  res.json({ status: "ok", hasPool: !!pool });
 });
 
 // Serve static files
