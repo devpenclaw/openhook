@@ -71,6 +71,7 @@ app.use(authMiddleware);
 async function initDB() {
   if (!pool) return;
   try {
+    // Create users table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
@@ -79,15 +80,26 @@ async function initDB() {
         created_at TIMESTAMP DEFAULT NOW()
       )
     `);
+    
+    // Create endpoints table (add user_id and name columns if missing)
     await pool.query(`
       CREATE TABLE IF NOT EXISTS endpoints (
         id SERIAL PRIMARY KEY,
-        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
         endpoint VARCHAR(64) UNIQUE NOT NULL,
         name VARCHAR(255),
         created_at TIMESTAMP DEFAULT NOW()
       )
-    `);
+    `).catch(() => {}); // Ignore if table exists
+    
+    // Add columns if they don't exist (migration)
+    try {
+      await pool.query('ALTER TABLE endpoints ADD COLUMN IF NOT EXISTS user_id INTEGER REFERENCES users(id) ON DELETE CASCADE');
+      await pool.query('ALTER TABLE endpoints ADD COLUMN IF NOT EXISTS name VARCHAR(255)');
+    } catch (e) {
+      // Columns may already exist
+    }
+    
+    // Create webhooks table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS webhooks (
         id SERIAL PRIMARY KEY,
@@ -102,6 +114,7 @@ async function initDB() {
         created_at TIMESTAMP DEFAULT NOW()
       )
     `);
+    
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_endpoints_user ON endpoints(user_id)`);
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_webhooks_endpoint ON webhooks(endpoint_id)`);
     
