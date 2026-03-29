@@ -8,7 +8,7 @@ app.use(express.json({ limit: "1mb" }));
 app.use(express.urlencoded({ extended: true }));
 
 // pg pool - reuse across invocations (like careflow)
-const globalForPool = globalThis as unknown as { pool: Pool | undefined };
+const globalForPool = globalThis || {};
 
 function createPool() {
   const connectionString = process.env.DATABASE_URL;
@@ -27,7 +27,7 @@ function createPool() {
   });
 }
 
-const pool = globalForPool.pool ?? createPool();
+const pool = globalForPool.pool || createPool();
 if (process.env.NODE_ENV !== "production") {
   globalForPool.pool = pool;
 }
