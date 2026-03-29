@@ -6,7 +6,7 @@ const app = express();
 app.use(express.json({ limit: "1mb" }));
 app.use(express.urlencoded({ extended: true }));
 
-// In-memory store (production would use Vercel Postgres or Supabase)
+// In-memory store (switch to database in production)
 const endpoints = new Map();
 const webhooks = new Map();
 
@@ -72,6 +72,11 @@ app.get("/api/endpoints", (req, res) => {
     });
   });
   res.json(list.sort((a, b) => b.created - a.created).slice(0, 10));
+});
+
+// Health check
+app.get("/api/health", (req, res) => {
+  res.json({ status: "ok", mode: "in-memory" });
 });
 
 // Serve static files
