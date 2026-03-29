@@ -2,7 +2,6 @@
 
 > Open source webhook debugging tool for developers
 
-![OpenHook](https://img.shields.io/badge/Status-Beta-purple)
 ![License](https://img.shields.io/badge/License-MIT-blue)
 
 **OpenHook** makes webhook debugging simple. Inspect, replay, and debug webhooks in real-time.
@@ -13,6 +12,7 @@
 - 🔄 **Replay Requests** - Test your integration without the original source
 - 📊 **Inspect Everything** - Headers, body, query params in formatted view
 - ⏰ **Request History** - Keep history of all webhook calls
+- 🌍 **Unique Endpoints** - Each user gets their own webhook URL
 
 ## Quick Start
 
@@ -25,21 +25,27 @@ cd openhook
 vercel --prod
 ```
 
-## Usage
-
-1. Get your unique webhook endpoint
-2. Point your service to that URL
-3. Inspect incoming requests in real-time
-
 ## Tech Stack
 
-- Pure HTML/CSS/JavaScript
-- No dependencies
-- Deploys to Vercel, Netlify, or any static host
+- Node.js + Express (Backend)
+- Pure HTML/CSS/JS (Frontend)
+- Vercel (Hosting)
 
-## Contributing
+## Production Database
 
-Contributions welcome! Open an issue or submit a PR.
+For production use with persistent storage, connect:
+- **Vercel Postgres** (recommended)
+- **Supabase** (free tier available)
+- **Neon** (serverless PostgreSQL)
+
+Add your database connection string to Vercel environment variables.
+
+## API Endpoints
+
+- `POST /api/hook/:endpoint` - Receive a webhook
+- `GET /api/hooks/:endpoint` - Get webhooks for endpoint
+- `POST /api/endpoints` - Create new endpoint
+- `GET /api/endpoints` - List all endpoints
 
 ## License
 
